@@ -11,6 +11,7 @@ const navigation = [
   { name: 'Candidates', href: '/candidates' },
   { name: 'Credentials', href: '/credentials' },
   { name: 'Workflows', href: '/workflows' },
+  { name: 'Security', href: '/security' },
   { name: 'Reports', href: '/reports' },
 ];
 

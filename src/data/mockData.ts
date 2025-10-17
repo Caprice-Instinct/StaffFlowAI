@@ -83,6 +83,72 @@ export interface OCRDocumentProcessing {
   reviewNotes?: string;
 }
 
+// SECURITY ARCHITECTURE
+export interface AuditLog {
+  logId: string;
+  timestamp: string;
+  userId: string;
+  userName: string;
+  userRole: 'recruiter' | 'credentialer' | 'staffing_lead' | 'candidate' | 'admin';
+  action: string;
+  resourceType: 'candidate_profile' | 'credential_document' | 'financial_data' | 'system_settings' | 'audit_logs';
+  resourceId: string;
+  resourceName: string;
+  ipAddress: string;
+  mfaVerified: boolean;
+  result: 'success' | 'denied' | 'failed';
+  suspiciousActivity: boolean;
+  reason?: string;
+}
+
+export interface EncryptionStatus {
+  category: string;
+  dataType: string;
+  encryptionAtRest: 'AES-256' | 'AES-128' | 'none';
+  encryptionInTransit: 'TLS 1.3' | 'TLS 1.2' | 'none';
+  keyRotationDays: number;
+  lastRotation: string;
+  nextRotation: string;
+  status: 'compliant' | 'warning' | 'critical';
+}
+
+export interface AccessControl {
+  roleId: string;
+  roleName: string;
+  permissions: {
+    category: string;
+    canView: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canDownload: boolean;
+    requiresMFA: boolean;
+  }[];
+  activeUsers: number;
+  lastReviewDate: string;
+}
+
+export interface SecurityIncident {
+  incidentId: string;
+  timestamp: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  type: 'unauthorized_access' | 'data_exfiltration' | 'brute_force' | 'suspicious_download' | 'failed_mfa';
+  description: string;
+  affectedUsers: string[];
+  status: 'detected' | 'investigating' | 'contained' | 'resolved';
+  actionTaken?: string;
+  resolvedAt?: string;
+}
+
+export interface ComplianceMetric {
+  standard: 'HIPAA' | 'GDPR' | 'Kenya Data Protection Act 2019' | 'ISO 27001';
+  requirement: string;
+  status: 'compliant' | 'partial' | 'non_compliant';
+  lastAuditDate: string;
+  nextAuditDate: string;
+  evidenceCount: number;
+  notes?: string;
+}
+
 // Module 2: Unified Workflow Command Center
 export interface SystemIntegration {
   systemId: string;
@@ -1610,5 +1676,387 @@ export const mockOCRProcessingLogs: OCRDocumentProcessing[] = [
     nlpConfidence: 42,
     manualReviewRequired: true,
     reviewNotes: 'Poor image quality - text confidence below 50%. Request candidate to re-upload higher quality scan or photo'
+  }
+];
+
+// SECURITY ARCHITECTURE - Audit Logs
+export const mockAuditLogs: AuditLog[] = [
+  {
+    logId: 'audit-1',
+    timestamp: '2025-10-17T09:23:15',
+    userId: 'user-001',
+    userName: 'Grace Wambui',
+    userRole: 'recruiter',
+    action: 'Downloaded credential document',
+    resourceType: 'credential_document',
+    resourceId: 'cred-1',
+    resourceName: 'Wanjiru Kamau - NCK License',
+    ipAddress: '197.248.12.45',
+    mfaVerified: true,
+    result: 'success',
+    suspiciousActivity: false
+  },
+  {
+    logId: 'audit-2',
+    timestamp: '2025-10-17T08:45:22',
+    userId: 'user-002',
+    userName: 'Peter Mwangi',
+    userRole: 'credentialer',
+    action: 'Viewed credential verification status',
+    resourceType: 'credential_document',
+    resourceId: 'cred-3',
+    resourceName: 'Njeri Mwangi - ACLS Certification',
+    ipAddress: '41.90.23.178',
+    mfaVerified: true,
+    result: 'success',
+    suspiciousActivity: false
+  },
+  {
+    logId: 'audit-3',
+    timestamp: '2025-10-17T07:12:08',
+    userId: 'user-003',
+    userName: 'Unknown User',
+    userRole: 'recruiter',
+    action: 'Attempted to access financial data',
+    resourceType: 'financial_data',
+    resourceId: 'payroll-001',
+    resourceName: 'Payroll Records - October 2025',
+    ipAddress: '102.165.88.234',
+    mfaVerified: false,
+    result: 'denied',
+    suspiciousActivity: true,
+    reason: 'Insufficient permissions - Recruiter role cannot access financial data'
+  },
+  {
+    logId: 'audit-4',
+    timestamp: '2025-10-17T06:34:19',
+    userId: 'user-004',
+    userName: 'Faith Akinyi',
+    userRole: 'credentialer',
+    action: 'Bulk download of 127 credential documents',
+    resourceType: 'credential_document',
+    resourceId: 'bulk-export-001',
+    resourceName: 'October Compliance Report',
+    ipAddress: '105.112.45.90',
+    mfaVerified: true,
+    result: 'success',
+    suspiciousActivity: false
+  },
+  {
+    logId: 'audit-5',
+    timestamp: '2025-10-17T05:18:45',
+    userId: 'user-005',
+    userName: 'Suspicious Login Attempt',
+    userRole: 'admin',
+    action: 'Failed login attempt (5th consecutive)',
+    resourceType: 'system_settings',
+    resourceId: 'login-system',
+    resourceName: 'Admin Portal',
+    ipAddress: '185.220.101.67',
+    mfaVerified: false,
+    result: 'failed',
+    suspiciousActivity: true,
+    reason: 'Account locked after 5 failed attempts - potential brute force attack'
+  },
+  {
+    logId: 'audit-6',
+    timestamp: '2025-10-17T04:56:12',
+    userId: 'user-006',
+    userName: 'James Omondi',
+    userRole: 'staffing_lead',
+    action: 'Viewed compliance dashboard',
+    resourceType: 'audit_logs',
+    resourceId: 'dashboard-001',
+    resourceName: 'October Compliance Metrics',
+    ipAddress: '41.80.123.45',
+    mfaVerified: true,
+    result: 'success',
+    suspiciousActivity: false
+  },
+  {
+    logId: 'audit-7',
+    timestamp: '2025-10-17T03:22:33',
+    userId: 'user-007',
+    userName: 'Wanjiru Kamau',
+    userRole: 'candidate',
+    action: 'Granted credential wallet access',
+    resourceType: 'credential_document',
+    resourceId: 'wallet-001',
+    resourceName: 'Shared wallet with Kenyatta National Hospital',
+    ipAddress: '197.254.78.12',
+    mfaVerified: true,
+    result: 'success',
+    suspiciousActivity: false
+  }
+];
+
+// SECURITY ARCHITECTURE - Encryption Status
+export const mockEncryptionStatus: EncryptionStatus[] = [
+  {
+    category: 'Personal Identifiable Information (PII)',
+    dataType: 'Names, DOB, Addresses, Phone Numbers, Email',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  },
+  {
+    category: 'Protected Health Information (PHI)',
+    dataType: 'Medical Licenses, Health Screenings, Vaccination Records',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  },
+  {
+    category: 'Financial Data',
+    dataType: 'Bank Account Numbers, Billing Rates, Payroll Information',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  },
+  {
+    category: 'Credential Documents',
+    dataType: 'Scanned Licenses, Certifications, Government IDs (PDFs/Images)',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  },
+  {
+    category: 'Audit Logs',
+    dataType: 'Access Logs, System Events, Security Incidents',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  },
+  {
+    category: 'Blockchain Credential Wallet',
+    dataType: 'Cryptographic Signatures, Wallet Addresses, Shared Access Logs',
+    encryptionAtRest: 'AES-256',
+    encryptionInTransit: 'TLS 1.3',
+    keyRotationDays: 90,
+    lastRotation: '2025-09-18',
+    nextRotation: '2025-12-17',
+    status: 'compliant'
+  }
+];
+
+// SECURITY ARCHITECTURE - Access Control (Role-Based Permissions)
+export const mockAccessControl: AccessControl[] = [
+  {
+    roleId: 'role-1',
+    roleName: 'Recruiter',
+    permissions: [
+      { category: 'Candidate Profiles', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Job Matching', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: false },
+      { category: 'Offer Status', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Communication History', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Financial Data', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Credential Documents', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'System Settings', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true }
+    ],
+    activeUsers: 12,
+    lastReviewDate: '2025-09-01'
+  },
+  {
+    roleId: 'role-2',
+    roleName: 'Credentialer',
+    permissions: [
+      { category: 'Candidate Profiles', canView: true, canEdit: false, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Credential Documents', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'Verification Status', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Compliance Checklist', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: false },
+      { category: 'Financial Data', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Recruiter Notes', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'System Settings', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true }
+    ],
+    activeUsers: 5,
+    lastReviewDate: '2025-09-01'
+  },
+  {
+    roleId: 'role-3',
+    roleName: 'Staffing Lead',
+    permissions: [
+      { category: 'Dashboard Metrics', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: false },
+      { category: 'Compliance Reporting', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'Audit Logs', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'Candidate PII', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Financial Data', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'System Settings', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: true }
+    ],
+    activeUsers: 3,
+    lastReviewDate: '2025-09-01'
+  },
+  {
+    roleId: 'role-4',
+    roleName: 'Candidate',
+    permissions: [
+      { category: 'Own Profile', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: false },
+      { category: 'Credential Wallet', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'Offer Status', canView: true, canEdit: false, canDelete: false, canDownload: false, requiresMFA: false },
+      { category: 'Payment Details', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Other Candidates', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Recruiter Notes', canView: false, canEdit: false, canDelete: false, canDownload: false, requiresMFA: true }
+    ],
+    activeUsers: 124,
+    lastReviewDate: '2025-09-01'
+  },
+  {
+    roleId: 'role-5',
+    roleName: 'Admin',
+    permissions: [
+      { category: 'All Data', canView: true, canEdit: true, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'System Settings', canView: true, canEdit: true, canDelete: false, canDownload: false, requiresMFA: true },
+      { category: 'Audit Logs', canView: true, canEdit: false, canDelete: false, canDownload: true, requiresMFA: true },
+      { category: 'User Management', canView: true, canEdit: true, canDelete: true, canDownload: false, requiresMFA: true }
+    ],
+    activeUsers: 2,
+    lastReviewDate: '2025-09-01'
+  }
+];
+
+// SECURITY ARCHITECTURE - Security Incidents
+export const mockSecurityIncidents: SecurityIncident[] = [
+  {
+    incidentId: 'inc-1',
+    timestamp: '2025-10-17T05:18:45',
+    severity: 'high',
+    type: 'brute_force',
+    description: 'Multiple failed login attempts detected for admin account from suspicious IP address',
+    affectedUsers: ['admin@staffflow.ai'],
+    status: 'contained',
+    actionTaken: 'Account locked after 5 failed attempts. IP address 185.220.101.67 added to blocklist. MFA re-authentication required.',
+    resolvedAt: '2025-10-17T05:25:12'
+  },
+  {
+    incidentId: 'inc-2',
+    timestamp: '2025-10-16T14:32:18',
+    severity: 'medium',
+    type: 'suspicious_download',
+    description: 'Credentialer attempted to download 500+ credential documents in 5 minutes',
+    affectedUsers: ['peter.mwangi@staffflow.ai'],
+    status: 'resolved',
+    actionTaken: 'Investigated - user was generating monthly compliance report. Download pattern within acceptable limits for role. No malicious intent detected.',
+    resolvedAt: '2025-10-16T15:45:00'
+  },
+  {
+    incidentId: 'inc-3',
+    timestamp: '2025-10-15T22:15:33',
+    severity: 'critical',
+    type: 'unauthorized_access',
+    description: 'Recruiter attempted to access financial payroll data without proper authorization',
+    affectedUsers: ['recruiter-external@staffingagency.com'],
+    status: 'resolved',
+    actionTaken: 'Access denied by role-based permission system. User account flagged for review. Security team notified. No data compromised.',
+    resolvedAt: '2025-10-15T22:16:12'
+  },
+  {
+    incidentId: 'inc-4',
+    timestamp: '2025-10-14T11:08:22',
+    severity: 'low',
+    type: 'failed_mfa',
+    description: 'Candidate failed MFA verification 3 consecutive times while accessing credential wallet',
+    affectedUsers: ['wanjiru.kamau@email.com'],
+    status: 'resolved',
+    actionTaken: 'User contacted via registered phone number. MFA reset requested. Verified identity through alternative authentication method. Access restored.',
+    resolvedAt: '2025-10-14T12:30:45'
+  }
+];
+
+// SECURITY ARCHITECTURE - Compliance Metrics
+export const mockComplianceMetrics: ComplianceMetric[] = [
+  {
+    standard: 'HIPAA',
+    requirement: 'Encryption of PHI at rest and in transit (45 CFR § 164.312)',
+    status: 'compliant',
+    lastAuditDate: '2025-09-15',
+    nextAuditDate: '2025-12-15',
+    evidenceCount: 6,
+    notes: 'All PHI encrypted with AES-256 at rest, TLS 1.3 in transit. Key rotation every 90 days.'
+  },
+  {
+    standard: 'HIPAA',
+    requirement: 'Access controls and user authentication (45 CFR § 164.312(a))',
+    status: 'compliant',
+    lastAuditDate: '2025-09-15',
+    nextAuditDate: '2025-12-15',
+    evidenceCount: 5,
+    notes: 'Role-based access control implemented. MFA required for sensitive operations. Audit logs track all access.'
+  },
+  {
+    standard: 'HIPAA',
+    requirement: 'Audit controls and logging (45 CFR § 164.312(b))',
+    status: 'compliant',
+    lastAuditDate: '2025-09-15',
+    nextAuditDate: '2025-12-15',
+    evidenceCount: 7,
+    notes: 'Comprehensive audit logging of all data access. Logs encrypted, immutable, and retained for 7 years.'
+  },
+  {
+    standard: 'GDPR',
+    requirement: 'Right to erasure (Article 17)',
+    status: 'compliant',
+    lastAuditDate: '2025-08-20',
+    nextAuditDate: '2025-11-20',
+    evidenceCount: 3,
+    notes: 'Data deletion workflow implemented. Cryptographic shredding ensures data is unrecoverable. 30-day processing time.'
+  },
+  {
+    standard: 'GDPR',
+    requirement: 'Data breach notification within 72 hours (Article 33)',
+    status: 'compliant',
+    lastAuditDate: '2025-08-20',
+    nextAuditDate: '2025-11-20',
+    evidenceCount: 1,
+    notes: 'Incident response protocol in place. Automated detection and notification system tested quarterly.'
+  },
+  {
+    standard: 'Kenya Data Protection Act 2019',
+    requirement: 'Data protection impact assessment (Section 31)',
+    status: 'compliant',
+    lastAuditDate: '2025-07-10',
+    nextAuditDate: '2025-10-10',
+    evidenceCount: 4,
+    notes: 'DPIA conducted for all high-risk processing activities. Regular reviews scheduled quarterly.'
+  },
+  {
+    standard: 'Kenya Data Protection Act 2019',
+    requirement: 'Cross-border data transfer safeguards (Section 48)',
+    status: 'compliant',
+    lastAuditDate: '2025-07-10',
+    nextAuditDate: '2025-10-10',
+    evidenceCount: 2,
+    notes: 'Data Processing Agreements (DPA) in place with all international partners. Standard Contractual Clauses (SCC) implemented.'
+  },
+  {
+    standard: 'ISO 27001',
+    requirement: 'Information security risk assessment (Clause 6.1.2)',
+    status: 'compliant',
+    lastAuditDate: '2025-06-05',
+    nextAuditDate: '2025-12-05',
+    evidenceCount: 8,
+    notes: 'Annual risk assessment completed. All high and critical risks mitigated. Medium risks monitored.'
+  },
+  {
+    standard: 'ISO 27001',
+    requirement: 'Business continuity and disaster recovery (Clause A.17)',
+    status: 'compliant',
+    lastAuditDate: '2025-06-05',
+    nextAuditDate: '2025-12-05',
+    evidenceCount: 5,
+    notes: 'Daily encrypted backups to separate geographic region. <24 hour recovery time objective (RTO). Tested monthly.'
   }
 ];
