@@ -50,6 +50,27 @@ export default function Dashboard() {
         <p className="mt-2 text-gray-600">
           Complete Healthcare Workforce Intelligence Platform - Predictive, Unified, and AI-Driven
         </p>
+        <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <svg className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">67% Faster Placement: 9 days → 3 days</p>
+              <p className="text-xs text-gray-700 mt-1">
+                Credentialing starts during screening, not after hiring. By the time you match a candidate, 70-80% of verification is complete.
+                State portal downtimes become irrelevant—backup pathways kick in automatically.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs">AES-256 Encryption</Badge>
+                <Badge variant="outline" className="text-xs">Blockchain Wallet</Badge>
+                <Badge variant="outline" className="text-xs">HIPAA Compliant</Badge>
+                <Badge variant="outline" className="text-xs">Kenya Data Protection Act</Badge>
+                <Badge variant="outline" className="text-xs">Full Audit Trail</Badge>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Key Metrics Cards */}
@@ -154,6 +175,9 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-700 mb-3">
+              Predictive monitoring, OCR document parser, blockchain wallet, micro-credentialing pipeline
+            </p>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Critical Alerts</span>
@@ -161,11 +185,15 @@ export default function Dashboard() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Portal Health</span>
-                <Badge variant="secondary">Monitoring</Badge>
+                <Badge variant="secondary">3hr checks</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Auto-Renewal</span>
-                <Badge variant="default">Active</Badge>
+                <Badge variant="default">90/60/30 day</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">OCR Parser</span>
+                <Badge variant="default">AI + NLP</Badge>
               </div>
             </div>
             <Button variant="link" size="sm" className="mt-4 p-0" asChild>
@@ -183,6 +211,9 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-700 mb-3">
+              Indeed/JobDiva/VMS integration, RPA packet bot (30s), smart collaboration, load balancer
+            </p>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Systems Connected</span>
@@ -190,11 +221,15 @@ export default function Dashboard() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Auto-Submissions</span>
-                <Badge variant="secondary">2 Today</Badge>
+                <Badge variant="secondary">90s avg</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Load Balancing</span>
-                <Badge variant="default">Optimized</Badge>
+                <Badge variant="default">AI-driven</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">Real-time Sync</span>
+                <Badge variant="default">&lt;1s</Badge>
               </div>
             </div>
             <Button variant="link" size="sm" className="mt-4 p-0" asChild>
@@ -212,6 +247,9 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-700 mb-3">
+              Shadow auto-queue, flight risk (0-100), AI shift matcher, backup pool, rate optimizer (&lt;3s)
+            </p>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">High Flight Risk</span>
@@ -222,8 +260,12 @@ export default function Dashboard() {
                 <Badge variant="default">{activeShadowCandidates} Ready</Badge>
               </div>
               <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">AI Matcher</span>
+                <Badge variant="secondary">85%+ match</Badge>
+              </div>
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Rate Optimizer</span>
-                <Badge variant="secondary">&lt;3s</Badge>
+                <Badge variant="default">&lt;3s calc</Badge>
               </div>
             </div>
             <Button variant="link" size="sm" className="mt-4 p-0" asChild>
@@ -237,22 +279,29 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold">4</div>
-              Comms Hub
+              Comms & Compliance
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-700 mb-3">
+              Email/SMS/WhatsApp, Swahili/French/Arabic, offline-ready, QR onboarding, Green/Yellow/Red scoring
+            </p>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Multi-Channel</span>
-                <Badge variant="default">Email/SMS/WA</Badge>
+                <Badge variant="default">3 channels</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Languages</span>
-                <Badge variant="secondary">4 Supported</Badge>
+                <Badge variant="secondary">4 + translate</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-700">Geo-Onboarding</span>
-                <Badge variant="default">3 Active</Badge>
+                <Badge variant="default">QR check-in</Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700">Offline Mode</span>
+                <Badge variant="default">2G ready</Badge>
               </div>
             </div>
             <Button variant="link" size="sm" className="mt-4 p-0" asChild>

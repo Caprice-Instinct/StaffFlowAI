@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 
 export default function CredentialsPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   // Flatten all credentials from all candidates
   const allCredentials: Array<Credential & { candidateName: string; candidateId: string }> = [];
@@ -78,12 +79,43 @@ export default function CredentialsPage() {
     });
   };
 
-  const handleDocumentUpload = () => {
-    toast.success('Document uploaded successfully', {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setUploadedFiles([...uploadedFiles, ...newFiles]);
+    }
+  };
+
+  const handleDeleteFile = (index: number) => {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index));
+  };
+
+  const handleSubmitDocuments = () => {
+    if (uploadedFiles.length === 0) {
+      toast.error('No documents to submit', {
+        description: 'Please upload at least one document before submitting',
+        position: 'bottom-right',
+        duration: 5000,
+      });
+      return;
+    }
+
+    toast.success(`${uploadedFiles.length} document${uploadedFiles.length > 1 ? 's' : ''} uploaded successfully`, {
       description: 'OCR processing started - extracting credential data using AI/NLP',
       position: 'bottom-right',
       duration: 5000,
     });
+
+    // Clear uploaded files after submission
+    setUploadedFiles([]);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
   const getStatusIcon = (status: string) => {
@@ -262,21 +294,80 @@ export default function CredentialsPage() {
           </p>
 
           {/* Upload Area */}
-          <div className="mb-6 p-6 border-2 border-dashed border-indigo-300 rounded-lg bg-white hover:bg-indigo-50 transition-colors cursor-pointer">
-            <div className="text-center">
-              <svg className="mx-auto h-12 w-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="mt-2 text-sm font-medium text-gray-900">
-                Click to upload or drag and drop
-              </p>
-              <p className="mt-1 text-xs text-gray-500">
-                PDF, PNG, JPG up to 10MB
-              </p>
-              <Button onClick={handleDocumentUpload} className="mt-3" variant="default">
-                Upload Document
-              </Button>
-            </div>
+          <div className="mb-6">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".pdf,.png,.jpg,.jpeg"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <label
+              htmlFor="file-upload"
+              className="block p-6 border-2 border-dashed border-indigo-300 rounded-lg bg-white hover:bg-indigo-50 transition-colors cursor-pointer"
+            >
+              <div className="text-center">
+                <svg className="mx-auto h-12 w-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="mt-2 text-sm font-medium text-gray-900">
+                  Click to upload or drag and drop
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  PDF, PNG, JPG up to 10MB
+                </p>
+                <div className="mt-3">
+                  <span className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    Select Files
+                  </span>
+                </div>
+              </div>
+            </label>
+
+            {/* Display Uploaded Files */}
+            {uploadedFiles.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Uploaded Files ({uploadedFiles.length})
+                </h4>
+                {uploadedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-white border border-indigo-200 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <svg className="w-8 h-8 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                        <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteFile(index)}
+                      className="ml-3 p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors flex-shrink-0"
+                      title="Delete file"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+
+                {/* Submit Button */}
+                <div className="pt-2">
+                  <Button onClick={handleSubmitDocuments} className="w-full bg-indigo-600 hover:bg-indigo-700" size="lg">
+                    Submit {uploadedFiles.length} Document{uploadedFiles.length > 1 ? 's' : ''} for OCR Processing
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Processing Logs */}
